@@ -3,6 +3,7 @@ package com.irpansyam.mynotesapp;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.database.Cursor;
 import android.os.AsyncTask;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
@@ -23,6 +24,7 @@ import java.util.ArrayList;
 import java.util.LinkedList;
 
 import static com.irpansyam.mynotesapp.FormAddUpdateActivity.REQUEST_UPDATE;
+import static com.irpansyam.mynotesapp.db.DatabaseContract.CONTENT_URI;
 
 public class MainActivity extends AppCompatActivity
         implements View.OnClickListener{
@@ -30,9 +32,10 @@ public class MainActivity extends AppCompatActivity
     ProgressBar progressBar;
     FloatingActionButton fabAdd;
 
-    private LinkedList<Note> list;
+    //private LinkedList<Note> list;
     private NoteAdapter adapter;
-    private NoteHelper noteHelper;
+    //private NoteHelper noteHelper;
+    private Cursor list;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -49,10 +52,10 @@ public class MainActivity extends AppCompatActivity
         fabAdd = (FloatingActionButton)findViewById(R.id.fab_add);
         fabAdd.setOnClickListener(this);
 
-        noteHelper = new NoteHelper(this);
-        noteHelper.open();
+        //noteHelper = new NoteHelper(this);
+       // noteHelper.open();
 
-        list = new LinkedList<>();
+        //list = new LinkedList<>();
 
         adapter = new NoteAdapter(this);
         adapter.setListNotes(list);
@@ -75,32 +78,32 @@ public class MainActivity extends AppCompatActivity
         }
     }
 
-    private class LoadNoteAsync extends AsyncTask<Void, Void, ArrayList<Note>>{
+    private class LoadNoteAsync extends AsyncTask<Void, Void, Cursor>{
         @Override
         protected void onPreExecute() {
             super.onPreExecute();
             progressBar.setVisibility(View.VISIBLE);
 
-            if (list.size() > 0){
-                list.clear();
-            }
+            //if (list.size() > 0){
+                //list.clear();
+            //}
         }
 
         @Override
-        protected ArrayList<Note> doInBackground(Void... voids) {
-            return noteHelper.query();
+        protected Cursor doInBackground(Void... voids) {
+            return getContentResolver().query(CONTENT_URI, null, null, null, null);
         }
 
         @Override
-        protected void onPostExecute(ArrayList<Note> notes) {
+        protected void onPostExecute(Cursor notes) {
             super.onPostExecute(notes);
             progressBar.setVisibility(View.GONE);
 
-            list.addAll(notes);
+            list = notes;
             adapter.setListNotes(list);
             adapter.notifyDataSetChanged();
 
-            if (list.size() == 0){
+            if (list.getCount() == 0){
                 showSnackbarMessage("Tidak ada data saat ini");
             }
         }
@@ -114,7 +117,7 @@ public class MainActivity extends AppCompatActivity
             if (resultCode == FormAddUpdateActivity.RESULT_ADD){
                 new LoadNoteAsync().execute();
                 showSnackbarMessage("Satu item berhasil ditambahkan");
-                rvNotes.getLayoutManager().smoothScrollToPosition(rvNotes, new RecyclerView.State(), 0);
+                //rvNotes.getLayoutManager().smoothScrollToPosition(rvNotes, new RecyclerView.State(), 0);
             }
         }
         // Update dan Delete memiliki request code sama akan tetapi result codenya berbeda
@@ -126,18 +129,19 @@ public class MainActivity extends AppCompatActivity
             if (resultCode == FormAddUpdateActivity.RESULT_UPDATE) {
                 new LoadNoteAsync().execute();
                 showSnackbarMessage("Satu item berhasil diubah");
-                int position = data.getIntExtra(FormAddUpdateActivity.EXTRA_POSITION, 0);
-                rvNotes.getLayoutManager().smoothScrollToPosition(rvNotes, new RecyclerView.State(), position);
+                //int position = data.getIntExtra(FormAddUpdateActivity.EXTRA_POSITION, 0);
+                //rvNotes.getLayoutManager().smoothScrollToPosition(rvNotes, new RecyclerView.State(), position);
             }
             /*
             Akan dipanggil jika result codenya DELETE
             Delete akan menghapus data dari list berdasarkan dari position
             */
             else if (resultCode == FormAddUpdateActivity.RESULT_DELETE) {
-                int position = data.getIntExtra(FormAddUpdateActivity.EXTRA_POSITION, 0);
-                list.remove(position);
-                adapter.setListNotes(list);
-                adapter.notifyDataSetChanged();
+                //int position = data.getIntExtra(FormAddUpdateActivity.EXTRA_POSITION, 0);
+                //ist.remove(position);
+                //adapter.setListNotes(list);
+                //adapter.notifyDataSetChanged();
+                new LoadNoteAsync().execute();
                 showSnackbarMessage("Satu item berhasil dihapus");
             }
         }
@@ -146,9 +150,9 @@ public class MainActivity extends AppCompatActivity
     @Override
     protected void onDestroy() {
         super.onDestroy();
-        if (noteHelper != null){
-            noteHelper.close();
-        }
+        //if (noteHelper != null){
+            //noteHelper.close();
+        //}
     }
 
     /**

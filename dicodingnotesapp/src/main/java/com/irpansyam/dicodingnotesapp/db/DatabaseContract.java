@@ -1,10 +1,8 @@
-package com.irpansyam.mynotesapp.db;
+package com.irpansyam.dicodingnotesapp.db;
 
 import android.database.Cursor;
 import android.net.Uri;
 import android.provider.BaseColumns;
-
-import java.net.URI;
 
 /**
  * Created by SONY on 12/3/2017.

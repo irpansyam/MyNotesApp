@@ -1,7 +1,14 @@
 package com.irpansyam.mynotesapp.entity;
 
+import android.database.Cursor;
 import android.os.Parcel;
 import android.os.Parcelable;
+
+import com.irpansyam.mynotesapp.db.DatabaseContract;
+
+import static android.provider.BaseColumns._ID;
+import static com.irpansyam.mynotesapp.db.DatabaseContract.getColumnInt;
+import static com.irpansyam.mynotesapp.db.DatabaseContract.getColumnString;
 
 /**
  * Created by SONY on 12/3/2017.
@@ -46,6 +53,12 @@ public class Note implements Parcelable{
     }
     public Note() {
     }
+    public Note(Cursor cursor){
+        this.id = getColumnInt(cursor, _ID);
+        this.title = getColumnString(cursor, DatabaseContract.NoteColumns.TITLE);
+        this.description = getColumnString(cursor, DatabaseContract.NoteColumns.DESCRIPTION);
+        this.date = getColumnString(cursor, DatabaseContract.NoteColumns.DATE);
+    }
 
     protected Note(Parcel in) {
         id = in.readInt();
@@ -54,7 +67,7 @@ public class Note implements Parcelable{
         date = in.readString();
     }
 
-    public static final Creator<Note> CREATOR = new Creator<Note>() {
+    public static final Parcelable.Creator<Note> CREATOR = new Parcelable.Creator<Note>() {
         @Override
         public Note createFromParcel(Parcel in) {
             return new Note(in);
